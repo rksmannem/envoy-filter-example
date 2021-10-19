@@ -47,7 +47,7 @@ const std::string HttpSampleDecoderFilter::readClusterHeader() const {
   std::cout << "read cluster header from shared memory, cluster_header: " << clusterHeader << std::endl;
   shared_data->signal = 0;
 
-  if (shm_release()) {
+  if (shm_detach() != 1) {
     std::cerr << "error deattachnig the shared memory, terminating" << std::endl;
   }
 

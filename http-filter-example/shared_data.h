@@ -32,19 +32,14 @@ struct shmid_ds shm_stats;
 int shm_allocate(int shm_mode){
    shmid = shmget(SHM_KEY, sizeof(struct shared_data), shm_mode);
    if (shmid == -1){
-      cout << "shmget error:" << errno << endl << endl;
+      cout << "shmget error:" << errno << endl << endl << ", error: " << strerror(errno) << endl;
       return 0;
-   }    
-   // shared_data = (struct shared_data *)shmat(shmid, (void*) 0, 0);
+   }
+
    void *ret = shmat(shmid, NULL, 0);
-   // int *data = reinterpret_cast<int*>(ret);
-   // if ( data == NULL || *data == -1 ) {
-   //      cout << "shmat error:" << errno << endl << endl;
-   //      return 0;
-   // }
    shared_data = reinterpret_cast<struct shared_data*>(ret);
    if ( shared_data == NULL ) {
-        cout << "shmat error:" << errno << endl << endl;
+        cout << "shmat error:" << errno << endl << endl<< ", error: " << strerror(errno) << endl;
         return 0;
    }
 
@@ -53,12 +48,29 @@ int shm_allocate(int shm_mode){
 
 //Detach from and deallocate shared memory
 int shm_release(){
-   if (shmdt(shared_data) == -1)
+   int dtRet = shmdt(shared_data);
+   if ( dtRet == -1) {
+      cout << endl << "shmdt Return Value: " << dtRet << ", error: "<< strerror(errno) << endl;
       return 0;
+   }
 
-   if (shmctl(shmid, IPC_RMID, 0) == -1)
+   int ctlRet = shmctl(shmid, IPC_RMID, 0);
+   if (ctlRet == -1) {
+      cout << endl << "shmctl Return Value: " << ctlRet  << ", error: "<< strerror(errno) << endl;
       return 0;
+   }
    
+   return 1; //success
+}
+
+
+int shm_detach(){
+   int dtRet = shmdt(shared_data);
+   if ( dtRet == -1) {
+      cout << endl << "shmdt Return Value: " << dtRet << ", error: "<< strerror(errno) << endl;
+      return 0;
+   }
+   cout << endl << "detached shared memory: " << dtRet << endl;
    return 1; //success
 }
 
@@ -68,5 +80,5 @@ void print_shm_info(){
       cout << "Processes attached: " << shm_stats.shm_nattch << endl << endl; 
    }
    else
-      cout << endl << "Error fetching shared memory info" << endl << endl;   
+      cout << endl << "Error fetching shared memory info" << endl << endl << ", error: "<< strerror(errno) << endl;
 }
