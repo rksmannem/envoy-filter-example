@@ -38,7 +38,7 @@ HttpSampleDecoderFilter::HttpSampleDecoderFilter(HttpSampleDecoderFilterConfigSh
 }
 
 HttpSampleDecoderFilter::~HttpSampleDecoderFilter() {
-  // shared_data->signal = 0;
+  shared_data->signal = 0;
   std::cout << "HttpSampleDecoderFilter::~HttpSampleDecoderFilter" << std::endl;
   std::cout << "deattaching from shared memory" << std::endl;
 
@@ -87,7 +87,7 @@ const std::string HttpSampleDecoderFilter::readClusterHeader() const {
 FilterHeadersStatus HttpSampleDecoderFilter::decodeHeaders(RequestHeaderMap& headers, bool) {
   std::cout << "BEGIN: decodeHeaders" << std::endl;
   std::cout << "cluster_header: " << cluster_header_ << std::endl;
-  headers.addCopy(LowerCaseString("cluster_header"), LowerCaseString(cluster_header_));
+  headers.addCopy(LowerCaseString("routing_destination"), LowerCaseString(cluster_header_));
 
   // add a header
   headers.addCopy(headerKey(), headerValue());
